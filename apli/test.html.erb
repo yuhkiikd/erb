@@ -1,34 +1,72 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="/css/sample.css">
   </head>
   <body>
     <h1>テスト！！！！！！！！！！！！！</h1>
 
     <% require 'pg' %>
-
     <% connection = PG::connect(dbname: "goya") %>
     <% connection.internal_encoding = "UTF-8" %>
 
+    <!-- ▼▼▼ テスト ▼▼▼ -->
     <form action="indicate.cgi" method="POST">
-       下記に文字を入力してください<br><br>
+       下記に文字を入力してください<br>
       <input type="text"  name="input" ><br>
       <input type="submit" name="送信" >
     </form>
+    <!-- ▲▲▲ テスト ▲▲▲ -->
 
-    <% result = connection.exec("select date, weight, give_for from crops;") %>
+    <!-- ▼▼▼ ゴーヤ情報_デフォルト ▼▼▼ -->
+    <% result = connection.exec("select * from crops;") %>
     <% date = [] %>
-
     <% result.each do |record| %>
-      <%  date << "ゴーヤの大きさ：#{record["weight"]}　売った相手：#{record["give_for"]}" %>
+      <%  date << "<ul><li>ゴーヤの大きさ：#{record["weight"]}</li>
+        <li>売った相手：#{record["give_for"]}</li>
+        <li>品質：#{record["quality"]}</li></ul>" %>
     <% end %>
+    <!-- ▲▲▲ ゴーヤ情報_デフォルト ▲▲▲ -->
 
-    <form action="goya.cgi" method="POST">
-       下記のボタンを押すと、ゴーヤの大きさと売った相手の情報ページに飛びます<br><br>
-       <!-- valueには、送りたいデータを代入する -->
-       <!-- name="goya"を、情報の目印とする -->
-      <input type="text" name="goya" value="<%= date.join(' ') %>">
-      <input type="submit" name="送信" >
+    <!-- ▼▼▼ ゴーヤ情報_自家消費以外 ▼▼▼ -->
+    <% result_other = connection.exec("select * from crops where give_for != '自家消費';") %>
+    <% other = [] %>
+    <% result_other.each do |record| %>
+      <%  other << "<ul><li>ゴーヤの大きさ：#{record["weight"]}</li>
+        <li>売った相手：#{record["give_for"]}</li>
+        <li>品質：#{record["quality"]}</li></ul>"%>
+    <% end %>
+    <!-- ▲▲▲ ゴーヤ情報_自家消費以外 ▲▲▲ -->
+
+    <!-- ▼▼▼ ゴーヤ情報_False ▼▼▼ -->
+    <% result_bad = connection.exec("select * from crops where quality = 'f';") %>
+    <% bad = [] %>
+    <% result_bad.each do |record| %>
+      <%  bad << "<ul><li>ゴーヤの大きさ：#{record["weight"]}</li>
+        <li>売った相手：#{record["give_for"]}</li>
+        <li>品質：#{record["quality"]}</li></ul>"%>
+    <% end %>
+    <!-- ▲▲▲ ゴーヤ情報_False ▲▲▲ -->
+
+    <form action="goya.cgi" name="form1" method="POST">
+      下記のボタンを押すと、ゴーヤの大きさと売った相手の情報ページに飛びます<br>
+      <input type="text" name="goya_other" value="<%= date.join(' ') %>">
+      <input type="submit" name="送信" ><br>
     </form>
+
+    <form action="goya.cgi" name="form2" method="POST">
+      下記のボタンを押すと、自家消費以外のゴーヤ情報を載せたページに飛びます<br>
+      <input type="hidden" name="goya_other" value="<%= other.join(' ') %>">
+      <div class="form_button"><a class="link" href="javascript:form2.submit()">ボタン</a></div>
+    </form>
+
+    <form action="goya.cgi" name="form3" method="POST">
+      下記のボタンを押すと、ゴーヤの品質が悪いもの（false）の情報を載せたページに飛びます<br>
+      <input type="hidden" name="goya_f" value="<%= bad.join(' ') %>">
+      <div class="form_button"><a class="link" href="javascript:form3.submit()">ボタン</a></div>
+    </form>
+
+
+
   </body>
 </html>
