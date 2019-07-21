@@ -1,6 +1,15 @@
 .form_button{
-  display:inline-block;
+  position:relative;
   width: 10rem;
+  height: 2rem;
+}
+
+.form_button a{
+  position: absolute;
+  line-height: 2rem;
+  text-decoration: none;
+  width: 100%;
+  height:100%;
   border:solid 1px #aaa;
   background-color:#aaa;
   color: #fff;
@@ -10,7 +19,7 @@
   transition-timing-function: linear,linear;
 }
 
-.form_button:hover{
+.form_button a:hover{
   background-color: #ddd;
   color: #555;
 }
